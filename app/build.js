@@ -1,0 +1,1 @@
+console.error("ReferenceError: [BABEL] /project/snabbdom-starter/main.js: Unknown option: /project/snabbdom-starter/.babelrc.presets while parsing file: /project/snabbdom-starter/main.js");
