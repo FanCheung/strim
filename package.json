@@ -2,12 +2,11 @@
   "name": "snabbdom-starter",
   "version": "0.0.0",
   "description": "Simple snabbdom starter repository",
-  "main": "nant2.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:yelouafi/snabbdom-starter.git"
   },
-  "author": "Yassine Elouafi <yelouafi@gmail.com>",
+  "author": "fan",
   "dependencies": {
     "rxjs": "^6",
     "snabbdom": "^0.7.2",
