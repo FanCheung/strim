@@ -10,7 +10,7 @@ import propsModule from 'snabbdom/modules/props'
 import styleModule from 'snabbdom/modules/style'
 import eventlistenersModule from 'snabbdom/modules/eventlisteners'
 import { Subject, Observable } from 'rxjs'
-import { map, startWith } from 'rxjs/operators'
+import { tap, filter, map, startWith } from 'rxjs/operators'
 
 const patch = snabbdom.init([ // Init patch function with chosen modules
   classModule, propsModule, styleModule, eventlistenersModule
@@ -50,6 +50,61 @@ class Component {
 }
 
 
+const App = () => {
+
+}
+
+const Todos = (props) => {
+  let action = {}
+  const dom = () => {
+
+  }
+
+}
+
+const Todo = (props, children) => {
+
+  let output = {
+    delete: new Subject()
+  }
+
+  const action = new Subject()
+  const doAction = (action) => {
+    return (params) => {
+      action.next({ action, params })
+    }
+  }
+
+  const filterAction = (value) => filter(({ action }) => action === value)
+  const on = (value) => action.pipe(filterAction(value))
+
+  const dom = (props, children, internal) => <div key={Math.random()}
+    hook={
+      { postpatch: (old, vnode) => { console.log(vnode) } }
+    }>
+    <strong>{props.title}</strong>
+    <input type="text" id="kdkd" on={{ input: (e) => doAction('input')(e) }} value={internal.value} />
+    {children}
+    <button on-click={(e) => doAction('update')(e)}>Update</button>
+    <button on-click={(e) => doAction('update')(e)}>Delete</button>
+  </div >
+
+  let view = dom(props, children, {})
+
+  const doUpdate = (vNode) => map(res => {
+    vNode = update(vNode, dom(res, null, null))
+    return vNode
+  })
+
+  const out = on('delete').pipe(tap(e => props.onDelete.next()))
+
+  on('input').pipe(
+    doUpdate(view)
+  )
+
+  return view
+
+}
 
 const render = (ob) => {
   let res
@@ -71,29 +126,6 @@ console.log(<div>kdsakfk</div>)
 
 
 
-
 function Field(props, children) {
-  // update parent from here
-  const input = new Subject()
 
-  const dom = (value) => <div key={1} hook={
-    { postpatch: (old, vnode) => { console.log(vnode) } }
-  }>
-    <label>{value}</label>
-    <input key={2} type="text" id="kdkd" on={{ input: (e) => input.next(e.target.value) }} />
-  </div >
-
-  const old = dom(props)
-  console.log('kkfkf', old)
-
-  input.pipe(
-    map(res => {
-      console.log(old)
-      old = update(old, dom(res))
-      return old
-    })
-  ).subscribe()
-
-
-  return old
 }
