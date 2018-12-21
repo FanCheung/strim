@@ -64,10 +64,6 @@ const Todos = (props) => {
 
 const Todo = (props, children) => {
 
-  let output = {
-    delete: new Subject()
-  }
-
   const action = new Subject()
   const doAction = (action) => {
     return (params) => {
@@ -98,12 +94,12 @@ const Todo = (props, children) => {
 
   const out = on('delete').pipe(tap(e => props.onDelete.next()))
 
+  /** only need to do internal upates */
   on('input').pipe(
     doUpdate(view)
   )
 
   return view
-
 }
 
 const render = (ob) => {
@@ -123,7 +119,6 @@ var oldNode = document.getElementById('placeholder')
 console.log(h('div', {}, []))
 console.log(<div>kdsakfk</div>)
 // alert('kdfk')
-
 
 
 function Field(props, children) {
