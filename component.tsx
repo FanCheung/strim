@@ -9,8 +9,8 @@ import classModule from 'snabbdom/modules/class'
 import propsModule from 'snabbdom/modules/props'
 import styleModule from 'snabbdom/modules/style'
 import eventlistenersModule from 'snabbdom/modules/eventlisteners'
-import { Subject, Observable } from 'rxjs'
-import { tap, filter, map, startWith } from 'rxjs/operators'
+import { Subject, Observable, ObjectUnsubscribedError } from 'rxjs'
+import { tap, pluck, filter, map, startWith } from 'rxjs/operators'
 
 const patch = snabbdom.init([ // Init patch function with chosen modules
   classModule, propsModule, styleModule, eventlistenersModule
@@ -49,62 +49,88 @@ class Component {
   }
 }
 
+const action = new Subject()
 
-const App = () => {
-
-}
-
-const Todos = (props) => {
-  let action = {}
-  const dom = () => {
-
+const fire = (a) => {
+  return (data) => {
+    action.next({ action: a, data })
   }
-
 }
 
-const Todo = (props, children) => {
+const filterAction = (value) => filter(({ action }) => action === value)
+const on = (value) => action.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })),
+  tap(console.warn)
+)
 
+
+const App = (props) => {
+  return <Todo></Todo>
+}
+
+const Todo = (props, children, ...k) => {
   let output = {
     delete: new Subject()
   }
 
-  const action = new Subject()
-  const doAction = (action) => {
-    return (params) => {
-      action.next({ action, params })
-    }
-  }
+  let state: any = {}
 
-  const filterAction = (value) => filter(({ action }) => action === value)
-  const on = (value) => action.pipe(filterAction(value))
-
-  const dom = (props, children, internal) => <div key={Math.random()}
+  const dom = (props, children, state) => <div key="9299999929"
     hook={
       { postpatch: (old, vnode) => { console.log(vnode) } }
     }>
     <strong>{props.title}</strong>
-    <input type="text" id="kdkd" on={{ input: (e) => doAction('input')(e) }} value={internal.value} />
+    <time>{props.date}</time>
+    <input type="text" id="kdsf" key={1} on={{ input: (e: any) => fire('input')(e.target.value) }} value={props.value} />
     {children}
-    <button on-click={(e) => doAction('update')(e)}>Update</button>
-    <button on-click={(e) => doAction('update')(e)}>Delete</button>
+    {props.input}
+    <button on-click={(e) => fire('update')(e)}>Update</button>
+    <button on-click={(e) => fire('delete')(e)}>Delete</button>
   </div >
 
-  let view = dom(props, children, {})
-
+  let view = dom(props, children, state)
   const doUpdate = (vNode) => map(res => {
-    vNode = update(vNode, dom(res, null, null))
+
+    vNode = update(vNode, dom(res, children, state))
     return vNode
   })
 
-  const out = on('delete').pipe(tap(e => props.onDelete.next()))
+  const out = on('delete')
+    .pipe(tap(e => props.onDelete.next()))
 
   on('input').pipe(
+    map(res => Object.assign(props, res)),
+    // attach(props,children,value)
     doUpdate(view)
-  )
-
+  ).subscribe(console.log)
   return view
 
 }
+
+let todos = []
+let Todos = (props, children) => {
+  const getInstance = (instance) => {
+    return (ref) => { instance = ref }
+  }
+  let todo = {}
+  const attachRef = (dest) => (src) => { dest = src }
+  const addTodo = new Subject()
+  const dom = (props, children) =>
+    <section>
+      <input type="text"
+        hook-init={attachRef(todo)}
+        on-input={(e: any) => fire('todo')(e.target.value)} />
+      <button on-click={function (e) {
+        addTodo.next(props.todo)
+        // console.log(props)
+        console.log(todo.elm.value)
+      }}>Add</button>
+      <Todo>{children}</Todo>
+    </section>
+
+  const view = dom(props, children)
+  return view
+}
+
 
 const render = (ob) => {
   let res
@@ -113,19 +139,10 @@ const render = (ob) => {
 }
 
 const update = (oldNode, newNode) => {
-  // oldNode = patch(oldNode, newNode)
+  oldNode = patch(oldNode, newNode)
   return oldNode
 }
 
 var oldNode = document.getElementById('placeholder')
-// update(oldNode, <div>kdfjksf</div>)
-
-console.log(h('div', {}, []))
-console.log(<div>kdsakfk</div>)
-// alert('kdfk')
-
-
-
-function Field(props, children) {
-
-}
+update(oldNode, <Todos
+  a="kfk" dataset={{ action: 'reset' }} ></Todos>)
