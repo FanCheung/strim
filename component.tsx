@@ -9,95 +9,116 @@ import classModule from 'snabbdom/modules/class'
 import propsModule from 'snabbdom/modules/props'
 import styleModule from 'snabbdom/modules/style'
 import eventlistenersModule from 'snabbdom/modules/eventlisteners'
-import { Subject, Observable } from 'rxjs'
-import { tap, filter, map, startWith } from 'rxjs/operators'
-
-const patch = snabbdom.init([ // Init patch function with chosen modules
-  classModule, propsModule, styleModule, eventlistenersModule
-]);
-
+import { Subject, Observable, ObjectUnsubscribedError, Notification } from 'rxjs'
+import { tap, pluck, filter, map, startWith, materialize } from 'rxjs/operators'
+const patch = snabbdom.init([classModule, propsModule, styleModule, eventlistenersModule])
 import h from 'snabbdom/h'
 
-class Component {
 
-  vDom
-  constructor() {
+const state = new Subject()
 
-  }
-  // events streams
-  on() { }
-
-  render() {
-    this.view('asdkf')
-  }
-
-  view(props) {
-    this.vDom = <button on-click={props}></button>;
-    return this.vDom
-  }
-
-  getService() {
-
-  }
-
-  input() {
-
-  }
-
-  destroy() {
-
+const fire = (a) => {
+  return (data) => {
+    state.next({ action: a, data })
   }
 }
 
+const filterAction = (value) => filter(({ action }) => action === value)
+const on = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })),
+  tap(console.warn)
+)
 
-const App = () => {
-
+const attachRef = (dest) => (src) => {
+  console.log(src, dest)
+  dest = src
+  console.log(dest)
+  return dest
 }
 
-const Todos = (props) => {
-  let action = {}
-  const dom = () => {
-
-  }
-
+const App = (props) => {
+  return <Todo></Todo>
 }
 
-const Todo = (props, children) => {
-
-  const action = new Subject()
-  const doAction = (action) => {
-    return (params) => {
-      action.next({ action, params })
-    }
+const Todo = (props, children, ...k) => {
+  let output = {
+    delete: new Subject()
   }
 
-  const filterAction = (value) => filter(({ action }) => action === value)
-  const on = (value) => action.pipe(filterAction(value))
+  let state: any = {}
 
-  const dom = (props, children, internal) => <div key={Math.random()}
+  console.log(props)
+  const dom = (props, children, state) => <div key="9299999929"
     hook={
       { postpatch: (old, vnode) => { console.log(vnode) } }
     }>
     <strong>{props.title}</strong>
-    <input type="text" id="kdkd" on={{ input: (e) => doAction('input')(e) }} value={internal.value} />
+    <time>{props.date}</time>
+    <input type="text" id="kdsf" key={1} on={{ input: (e: any) => fire('input')(e.target.value) }} value={props.value} />
     {children}
-    <button on-click={(e) => doAction('update')(e)}>Update</button>
-    <button on-click={(e) => doAction('update')(e)}>Delete</button>
+    {props.item}
+    <button on-click={(e) => fire('update')(e)}>Update</button>
+    <button on-click={(e) => fire('delete')(e)}>Delete</button>
   </div >
 
-  let view = dom(props, children, {})
-
+  let view = dom(props, children, state)
   const doUpdate = (vNode) => map(res => {
-    vNode = update(vNode, dom(res, null, null))
+
+    vNode = update(vNode, dom(res, children, state))
     return vNode
   })
 
-  const out = on('delete').pipe(tap(e => props.onDelete.next()))
+  const out = on('delete')
+    .pipe(tap(e => props.onDelete.next()))
 
-  /** only need to do internal upates */
   on('input').pipe(
+    map(res => Object.assign(props, res)),
+    // attach(props,children,value)
     doUpdate(view)
-  )
+  ).subscribe(console.log)
+  return view
+}
+
+let todos = []
+
+
+const Todos = (props, children) => {
+  let todo = {}
+  const addTodo = new Subject()
+  // props.items = []
+  const dom = (props, children) =>
+    <section>
+      <input type="text"
+        hook-init={res => todo = res}
+        on-input={(e: any) => fire('todo')(e.target.value)} />
+      <button on-click={function (e) {
+        // controlled from
+        addTodo.next(todo.elm.value)
+        // uncontroled form
+        console.log(todo.elm.value)
+        todo.elm.value = ""
+      }}>Add</button>
+      {props.items.map(todo =>
+        <Todo item={todo}>{children}</Todo>
+      )}
+    </section>
+
+  const view = dom(props, children)
+  const doUpdate = (vNode, props) => tap(() => {
+    vNode = update(vNode, dom(props, children))
+    return vNode
+  })
+
+  addTodo.pipe(
+    tap(() => console.log(props.todos)),
+    map(todo => {
+      props.todos.push(todo)
+      return props
+    }),
+    // map(todos => Object.assign(props, { todos })),
+    tap(console.log),
+    // attach(props,children,value)
+    doUpdate(view, props)
+  ).subscribe()
 
   return view
 }
@@ -109,18 +130,12 @@ const render = (ob) => {
 }
 
 const update = (oldNode, newNode) => {
-  // oldNode = patch(oldNode, newNode)
+  oldNode = patch(oldNode, newNode)
   return oldNode
 }
 
 var oldNode = document.getElementById('placeholder')
-// update(oldNode, <div>kdfjksf</div>)
-
-console.log(h('div', {}, []))
-console.log(<div>kdsakfk</div>)
-// alert('kdfk')
+update(oldNode, <Todos
+  a="kfk" items={[]} dataset={{ action: 'reset' }} ></Todos>)
 
 
-function Field(props, children) {
-
-}

@@ -1665,13 +1665,9 @@ expand-range@^1.8.1:
   dependencies:
     fill-range "^2.1.0"
 
-extend@^3.0.0:
+extend@^3.0.0, extend@~3.0.0:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
-
-extend@~3.0.0:
-  version "3.0.1"
-  resolved "http://registry.npm.taobao.org/extend/download/extend-3.0.1.tgz#a755ea7bc1adfcc5a31ce7e762dbaadc5e636444"
 
 extglob@^0.3.1:
   version "0.3.2"
@@ -2947,11 +2943,7 @@ snabbdom-pragma@^2.8.0:
   dependencies:
     extend "^3.0.0"
 
-snabbdom@^0.7.0:
-  version "0.7.1"
-  resolved "http://registry.npm.taobao.org/snabbdom/download/snabbdom-0.7.1.tgz#c1e9eddfad2c02ebc2cf66aaefb040419d059597"
-
-snabbdom@^0.7.2:
+snabbdom@^0.7.0, snabbdom@^0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/snabbdom/-/snabbdom-0.7.2.tgz#e9d3930e6374ef8766706ccee4c6ed7b331afa64"
 
