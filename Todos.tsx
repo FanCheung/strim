@@ -2,10 +2,12 @@
 import * as Snabbdom from 'snabbdom-pragma'
 import { map } from 'rxjs/operators'
 import { setState, onStateChange, patchChange } from './lib'
+import { Subject } from 'rxjs';
 
+const action = new Subject()
 export function Todo(props, children) {
-  let todo = {}
   // props.items = []
+  let todo = {}
   const dom = (props, children) =>
     <section>
       <input type="text"
@@ -13,7 +15,7 @@ export function Todo(props, children) {
         on-input={(e: any) => setState('todo', e.target.value)} />
       <button on-click={function (e) {
         // controlled from
-        setState(props.stodos, [todo.elm.value, ...props.todos])
+        action.next('addTodo')
         // uncontroled form
         todo.elm.value = ""
       }}>Add</button>
@@ -24,13 +26,11 @@ export function Todo(props, children) {
 
   const view = dom(props, children)
   // of({props,children}),
-  onStateChange('todo').pipe(
-    map(todo => {
-      return todo
-    }),
-    // map(todos => Object.assign(props, { todos })),
-    // attach(props,children,value)
-    patchChange(view, dom(props, children), props, children)
-  ).subscribe()
+ onStateChange('addTodo').pipe() 
+  onStateChange('todo')
+    .pipe(
+      map(items => Object.assign(props, { items })),
+      patchChange(view, dom(props, children), props, children)
+    ).subscribe()
   return view
 }

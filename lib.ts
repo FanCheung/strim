@@ -46,8 +46,9 @@ export function patchChange(currentVNode, dom, props, children) {
 
 function filterAction(value) { return filter(({ action }) => action === value) }
 
-export const onStateChange = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data }))
-)
+export const onStateChange = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })))
+
+export const onAction = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })))
 
 const state = new Subject()
 
