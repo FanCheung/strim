@@ -14,9 +14,7 @@ import { Subject, Observable, ObjectUnsubscribedError, Notification, of } from '
 import { tap, pluck, filter, map, startWith, materialize } from 'rxjs/operators'
 const patch = snabbdom.init([classModule, propsModule, styleModule, eventlistenersModule])
 import h from 'snabbdom/h'
-
-
-
+import { Todos } from './Todos'
 
 const render = (ob) => {
   let res
