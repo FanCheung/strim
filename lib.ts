@@ -30,7 +30,7 @@ export const update = (oldNode, newNode) => {
   return oldNode
 }
 
-export function patchChange(currentVNode, dom, props,children) {
+export function patchChange(currentVNode, dom, props, children) {
   return tap(newProps => {
     Object.assign(props, newProps)
     currentVNode = update(currentVNode, dom(newProps, currentVNode.children))
@@ -59,15 +59,15 @@ const valueObs = new Subject()
 function filterValue(name) { return filter((obj: any) => obj.name === name) }
 export const valueChange = (name) => valueObs.pipe(filterValue(name))
 export const setValue = (name, value) => {
-  value.next({ name, value })
-  return value
+  valueObs.next({ name, value })
+  return valueObs
 }
 
 const actionObs = new Subject()
 
 function filterAction(name) { return filter((obj: any) => obj.name === name) }
 export const on = (name) => actionObs.pipe(filterValue(name))
-export const action = (name, value) => {
+export const actionEmit = (name, value) => {
   actionObs.next({ name, value })
   return actionObs
 }
@@ -79,6 +79,6 @@ export const action = (name, value) => {
  * @param name hook name
  * @returns Observable<function>
  */
-function getHook(vnode, name):object {
+export function getHook(vnode, name): object {
   return { init: '', beforePack: '' }
 }
