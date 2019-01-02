@@ -39,9 +39,6 @@ export function patchChange(currentVNode, dom, props, children) {
 }
 
 
-export const onStateChange = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })))
-
-export const onAction = (value) => state.pipe(filterAction(value), map((res: any) => ({ [value]: res.data })))
 
 const state = new Subject()
 
@@ -56,18 +53,19 @@ const attachRef = (dest) => (src) => {
 }
 
 const valueObs = new Subject()
-function filterValue(name) { return filter((obj: any) => obj.name === name) }
-export const valueChange = (name) => valueObs.pipe(filterValue(name))
+
+// function filterValue(name) { return filter((obj: any) => obj[name]!=) }
+export const valueChange = (name) => valueObs.pipe(map(obj => obj[name]))
 export const setValue = (name, value) => {
-  valueObs.next({ name, value })
+  valueObs.next({ [name]: value })
   return valueObs
 }
 
 const actionObs = new Subject()
 
 function filterAction(name) { return filter((obj: any) => obj.name === name) }
-export const on = (name) => actionObs.pipe(filterValue(name))
-export const actionEmit = (name, value) => {
+export const on = (name) => actionObs.pipe(filterAction(name))
+export const action = (name, value) => {
   actionObs.next({ name, value })
   return actionObs
 }

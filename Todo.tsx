@@ -1,42 +1,35 @@
-const Todos = (props, children) => {
+
+import * as Snabbdom from 'snabbdom-pragma'
+import { tap, map, mapTo, withLatestFrom, switchMap } from 'rxjs/operators'
+import { action, getHook, setState, valueChange, setValue, patchChange, emit, on } from './lib'
+// import classes from './todo.css'
+// console.log(classes)
+export const Todo = (props, children) => {
   let todo = {}
-  const addTodo = new Subject()
   // props.items = []
   const dom = (props, children) =>
     <section>
-      <input type="text"
-        hook-init={res => todo = res}
-        on-input={(e: any) => fire('todo')(e.target.value)} />
-
-      <button on-click={function (e) {
-        // controlled from
-        addTodo.next(todo.elm.value)
-        // uncontroled form
-        console.log(todo.elm.value)
-        todo.elm.value = ""
-      }}>Add</button>
-      {props.items.map(todo =>
-        <Todo item={todo}>{children}</Todo>
-      )}
+      <strong>{props.item.title}</strong>
+      <input type="text" class={{ hidden: !props.edit }} on-input={(e: any) => setValue('todo', e.target.value)} />
+      <button on-click={e => action('edit', null)}>Edit</button>
+      <button class={{ hidden: !props.edit }} on-click={e => action('save', null)}>Save</button>
+      <button on-click={e => action('delete', null)}>Remove</button>
     </section>
 
   const view = dom(props, children)
-
-  const doUpdate = (currentVNode, props, children) => tap(() => {
-    currentVNode = update(currentVNode, dom(props, children))
-    return currentVNode
-  })
-
+  console.log(props)
   // of({props,children}),
+  on('edit').pipe(mapTo({ edit: true }))
+  on('save').pipe(tap(() => emit('onSave', null)), mapTo({ edit: false }))
+  on('delete').pipe(tap(() => emit('onDelete', null)))
 
-  addTodo.pipe(
+  on('edit').pipe(
     map(todo => {
       props.items.push(todo)
       return props
     }),
-    // map(todos => Object.assign(props, { todos })),
-    // attach(props,children,value)
-    doUpdate(view, props)
+    map(todos => Object.assign(props, { todos })),
+    patchChange(view, dom, props, children)
   ).subscribe()
 
   return view
