@@ -32,8 +32,13 @@ export const update = (oldNode, newNode) => {
 
 export function patchChange(currentVNode, dom, props, children) {
   return tap(newProps => {
-    Object.assign(props, newProps)
-    currentVNode = update(currentVNode, dom(newProps, currentVNode.children))
+    newProps = Object.assign(props, newProps)
+    console.dir(newProps, dom)
+    console.warn(dom)
+    debugger
+    const newDom = dom(newProps, children)
+
+    currentVNode = update(currentVNode, newDom[0])
     return currentVNode
   })
 }
@@ -79,4 +84,14 @@ export const action = (name, value) => {
  */
 export function getHook(vnode, name): object {
   return { init: '', beforePack: '' }
+}
+
+const mergeProps = (arr: any) => Object.assign.apply(arr)
+
+export const mv = (model, view) => {
+  return (props, children) => {
+    const v = view(props, children)
+    model(props, v[1]).pipe(patchChange(v[0], view, props, children)).subscribe()
+    return v[0]
+  }
 }

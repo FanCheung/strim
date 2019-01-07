@@ -7,6 +7,7 @@ import { action, getHook, setState, valueChange, setValue, patchChange, emit, on
 export const Todo = (props, children) => {
   let todo = {}
   // props.items = []
+
   const dom = (props, children) =>
     <section>
       <strong>{props.item.title}</strong>
