@@ -27,5 +27,5 @@ const render = (ob) => {
 var oldNode = document.getElementById('placeholder')
 
 patch(oldNode as HTMLElement, <Todos
-  a="kfk" items={[]} dataset={{ action: 'reset' }} ></Todos>)
+  a="kfk" items={[]} dataset={{ action: 'reset' }} ><h1>kdajfkadf</h1></Todos>)
 

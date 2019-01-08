@@ -30,15 +30,12 @@ export const update = (oldNode, newNode) => {
   return oldNode
 }
 
-export function patchChange(currentVNode, dom, props, children) {
+export function patchChange(currentVNode, dom, props, children, output) {
   return tap(newProps => {
     newProps = Object.assign(props, newProps)
     console.dir(newProps, dom)
-    console.warn(dom)
-    debugger
-    const newDom = dom(newProps, children)
-
-    currentVNode = update(currentVNode, newDom[0])
+    const newDom = dom(newProps, children, output)
+    currentVNode = update(currentVNode, newDom)
     return currentVNode
   })
 }
@@ -66,15 +63,14 @@ export const setValue = (name, value) => {
   return valueObs
 }
 
-const actionObs = new Subject()
 
+const actionObs = new Subject()
 function filterAction(name) { return filter((obj: any) => obj.name === name) }
 export const on = (name) => actionObs.pipe(filterAction(name))
 export const action = (name, value) => {
   actionObs.next({ name, value })
   return actionObs
 }
-
 
 /**
  * Get the specified hook as a stream
